@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>职途星图 STARmap · Demo</title>
+<style>
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --primary-light: #eef2ff;
+  --bg: #f0f2f7;
+  --card: #fff;
+  --text: #1e293b;
+  --text2: #64748b;
+  --text3: #94a3b8;
+  --border: #e8ecf1;
+  --green: #10b981;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --radius: 14px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;
+  background:#1a1a2e;
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;padding:20px;
+}
+
+/* Phone Frame */
+.phone{
+  width:390px;height:844px;
+  background:var(--bg);
+  border-radius:32px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 0 3px #333,0 0 0 6px #1a1a2e;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.phone-header{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;
+  padding:14px 20px;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  font-weight:600;
+  font-size:0.95rem;
+  flex-shrink:0;
+}
+.phone-header .title{font-size:1rem;letter-spacing:0.02em;}
+.phone-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;}
+
+/* Bottom Tabs */
+.tabs{
+  display:flex;
+  background:var(--card);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.tab{
+  flex:1;padding:8px 4px;
+  border:none;background:none;
+  cursor:pointer;
+  display:flex;flex-direction:column;
+  align-items:center;gap:3px;
+  color:var(--text3);
+  font-size:0.7rem;
+  transition:color 0.2s;
+}
+.tab.active{color:var(--primary);}
+.tab .icon{font-size:1.25rem;}
+
+/* Cards */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card h3{font-size:0.95rem;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.card p{font-size:0.82rem;color:var(--text2);line-height:1.6;}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 22px;border-radius:22px;
+  font-size:0.85rem;font-weight:600;
+  border:none;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-primary{
+  background:var(--primary);color:#fff;
+}
+.btn-primary:active{transform:scale(0.96);background:var(--primary-dark);}
+.btn-outline{
+  background:#fff;color:var(--primary);border:2px solid var(--primary);
+}
+.btn-sm{padding:6px 14px;font-size:0.78rem;border-radius:16px;}
+
+/* Chat */
+.chat-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;}
+.chat-msg{
+  max-width:85%;padding:10px 14px;border-radius:16px;
+  font-size:0.83rem;line-height:1.5;
+  animation:msgIn 0.3s ease;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.chat-msg.ai{
+  align-self:flex-start;
+  background:#f1f5f9;color:var(--text);
+  border-bottom-left-radius:4px;
+}
+.chat-msg.user{
+  align-self:flex-end;
+  background:var(--primary);color:#fff;
+  border-bottom-right-radius:4px;
+}
+.chat-msg .typing{display:flex;gap:4px;padding:4px 0;}
+.chat-msg .typing span{
+  width:7px;height:7px;border-radius:50%;background:var(--text3);
+  animation:dot 1.4s infinite;
+}
+.chat-msg .typing span:nth-child(2){animation-delay:0.2s;}
+.chat-msg .typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot{0%,60%,100%{opacity:0.2;transform:scale(0.8);}30%{opacity:1;transform:scale(1.2);}}
+
+.quick-replies{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.quick-reply{
+  padding:7px 14px;border-radius:18px;border:1px solid var(--border);
+  background:#fff;color:var(--primary);font-size:0.78rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.quick-reply:active{background:var(--primary-light);}
+
+/* Radar Chart (Pure CSS) */
+.radar-wrap{display:flex;justify-content:center;padding:12px 0;}
+.radar{
+  width:200px;height:200px;
+  position:relative;
+}
+.radar svg{width:100%;height:100%;}
+
+/* Progress bars */
+.bar-wrap{margin:6px 0;}
+.bar-label{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text2);margin-bottom:2px;}
+.bar-label .val{font-weight:600;color:var(--text);}
+.bar-track{height:8px;border-radius:4px;background:#e8ecf1;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.8s ease;}
+.bar-fill.green{background:linear-gradient(90deg,#10b981,#34d399);}
+.bar-fill.blue{background:linear-gradient(90deg,#4f46e5,#818cf8);}
+.bar-fill.purple{background:linear-gradient(90deg,#7c3aed,#a78bfa);}
+
+/* Resume card */
+.resume-preview{
+  border:1px solid var(--border);border-radius:10px;
+  padding:14px;font-size:0.78rem;line-height:1.7;
+  background:#fafbfc;
+}
+.resume-preview .highlight{background:#fef3c7;padding:1px 0;border-radius:2px;}
+.resume-preview .badge{
+  display:inline-block;padding:2px 8px;border-radius:10px;
+  font-size:0.7rem;font-weight:600;
+}
+.badge.good{background:#d1fae5;color:#065f46;}
+
+/* Interview */
+.interview-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;color:#fff;margin:0 auto 10px;
+}
+.score-ring{
+  width:70px;height:70px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;font-weight:700;
+  position:relative;
+}
+.score-ring::before{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  border:4px solid #e8ecf1;
+}
+.score-ring.high::before{border-color:#10b981;}
+.score-ring.mid::before{border-color:#f59e0b;}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat{
+  background:var(--card);border-radius:var(--radius);
+  padding:14px;text-align:center;box-shadow:var(--shadow);
+}
+.stat .num{font-size:1.5rem;font-weight:700;color:var(--primary);}
+.stat .lbl{font-size:0.72rem;color:var(--text2);margin-top:2px;}
+
+/* Offer compare */
+.compare-table{width:100%;font-size:0.75rem;border-collapse:collapse;}
+.compare-table th,.compare-table td{
+  padding:8px 6px;text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.compare-table th{background:#f8fafc;font-weight:600;color:var(--text2);}
+.compare-table .win{color:#10b981;font-weight:600;}
+.compare-table td:first-child{text-align:left;color:var(--text2);font-size:0.72rem;}
+
+/* Segment badge */
+.segment{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:12px;
+  font-size:0.7rem;font-weight:600;
+}
+.segment.diamond{background:#ede9fe;color:#5b21b6;}
+
+/* Voice button */
+.voice-btn{
+  width:60px;height:60px;border-radius:50%;
+  border:none;background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;font-size:1.6rem;cursor:pointer;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  margin:10px auto;
+  animation:pulse 1.8s infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4);}
+  50%{box-shadow:0 0 0 16px rgba(239,68,68,0);}
+}
+.voice-btn.recording{animation:none;background:#dc2626;box-shadow:0 0 0 12px rgba(220,38,38,0.3);}
+
+/* Offer card */
+.offer-card{
+  border:2px solid var(--border);border-radius:var(--radius);
+  padding:14px;text-align:center;transition:all 0.2s;
+}
+.offer-card.best{border-color:#10b981;background:#f0fdf4;}
+.offer-card .company{font-weight:700;font-size:0.9rem;}
+.offer-card .salary{font-size:1.2rem;font-weight:700;color:var(--primary);margin:4px 0;}
+.offer-card .tag{font-size:0.7rem;color:var(--text2);}
+
+/* Empty state animation */
+.empty-anim{text-align:center;padding:30px;}
+.empty-anim .icon{font-size:3rem;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+/* Scrollbar */
+.phone-body::-webkit-scrollbar{width:4px;}
+.phone-body::-webkit-scrollbar-track{background:transparent;}
+.phone-body::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px;}
+
+/* Toast */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  background:#1e293b;color:#fff;padding:10px 24px;border-radius:22px;
+  font-size:0.85rem;z-index:100;opacity:0;transition:opacity 0.3s;
+}
+.toast.show{opacity:1;}
+
+/* Audio visualizer */
+.visualizer{display:flex;align-items:center;justify-content:center;gap:3px;height:30px;}
+.visualizer .bar{
+  width:3px;border-radius:2px;background:var(--primary);
+  animation:vis 0.8s ease-in-out infinite;
+}
+.visualizer .bar:nth-child(1){height:12px;animation-delay:0s;}
+.visualizer .bar:nth-child(2){height:20px;animation-delay:0.1s;}
+.visualizer .bar:nth-child(3){height:28px;animation-delay:0.2s;}
+.visualizer .bar:nth-child(4){height:18px;animation-delay:0.3s;}
+.visualizer .bar:nth-child(5){height:22px;animation-delay:0.4s;}
+.visualizer .bar:nth-child(6){height:10px;animation-delay:0.5s;}
+.visualizer .bar:nth-child(7){height:26px;animation-delay:0.6s;}
+@keyframes vis{0%,100%{transform:scaleY(1);}50%{transform:scaleY(0.4);}}
+
+@media(max-width:420px){
+  .phone{width:100%;height:100vh;border-radius:0;box-shadow:none;}
+  body{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-header">
+    <span>🌟 职途星图</span>
+    <span style="font-size:0.75rem;opacity:0.85">STARmap</span>
+  </div>
+
+  <div class="phone-body" id="body">
+    <!-- Content rendered by JS -->
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="compass">
+      <span class="icon">🧭</span>职业罗盘
+    </button>
+    <button class="tab" data-tab="resume">
+      <span class="icon">⚡</span>简历引擎
+    </button>
+    <button class="tab" data-tab="interview">
+      <span class="icon">🎭</span>面试训练
+    </button>
+    <button class="tab" data-tab="map">
+      <span class="icon">🗺️</span>作战地图
+    </button>
+    <button class="tab" data-tab="offer">
+      <span class="icon">🧠</span>Offer
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let currentTab = 'compass';
+let compassStep = 0;
+let resumeStep = 0;
+let interviewStep = 0;
+let radarData = null;
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Tab Navigation ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    currentTab = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderTab(currentTab);
+  });
+});
+
+// ── SVG Radar Chart ──
+function radarSVG(scores) {
+  const labels = ['逻辑思维','沟通表达','创意设计','数据分析','项目管理','技术实践','领导协作'];
+  const cx=100,cy=100,r=75,levels=5;
+  const angles = labels.map((_,i)=> (Math.PI*2*i/labels.length) - Math.PI/2);
+
+  let svg = `<svg viewBox="0 0 200 200">`;
+  // Grid
+  for(let l=1;l<=levels;l++){
+    const pts = angles.map(a => `${cx+(r*l/levels)*Math.cos(a)},${cy+(r*l/levels)*Math.sin(a)}`).join(' ');
+    svg += `<polygon points="${pts}" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>`;
+  }
+  // Axes
+  angles.forEach(a => {
+    svg += `<line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}" stroke="#e2e8f0" stroke-width="0.5"/>`;
+  });
+  // Data
+  const dataPts = scores.map((s,i) => {
+    const val = s/100 * r;
+    return `${cx+val*Math.cos(angles[i])},${cy+val*Math.sin(angles[i])}`;
+  }).join(' ');
+  svg += `<polygon points="${dataPts}" fill="rgba(79,70,229,0.25)" stroke="#4f46e5" stroke-width="2"/>`;
+  // Dots
+  scores.forEach((s,i) => {
+    const val = s/100 * r;
+    const x = cx+val*Math.cos(angles[i]), y = cy+val*Math.sin(angles[i]);
+    svg += `<circle cx="${x}" cy="${y}" r="3" fill="#4f46e5"/>`;
+  });
+  // Labels
+  labels.forEach((lb,i) => {
+    const x = cx+(r+18)*Math.cos(angles[i]), y = cy+(r+18)*Math.sin(angles[i]);
+    svg += `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#64748b">${lb}</text>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+// ── Render Functions ──
+function renderTab(tab) {
+  const body = document.getElementById('body');
+  body.scrollTop = 0;
+  switch(tab) {
+    case 'compass': renderCompass(body); break;
+    case 'resume': renderResume(body); break;
+    case 'interview': renderInterview(body); break;
+    case 'map': renderMap(body); break;
+    case 'offer': renderOffer(body); break;
+  }
+  // Re-attach event listeners for the new content
+  setTimeout(() => attachHandlers(tab), 100);
+}
+
+// ═══════════ 🧭 AI职业罗盘 ═══════════
+function renderCompass(body) {
+  if (compassStep === 0) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div class="empty-anim"><div class="icon">🧭</div></div>
+        <h3 style="margin-bottom:8px">AI 职业罗盘</h3>
+        <p>通过10分钟的AI深度对话<br>发现你真正的职业方向</p>
+        <button class="btn btn-primary" style="margin-top:14px" id="startCompass">开始探索</button>
+      </div>
+      <div class="card">
+        <h3>📊 你的能力雷达图</h3>
+        <p style="text-align:center;color:var(--text3);padding:30px 0">完成对话后自动生成</p>
+      </div>
+    `;
+  } else if (compassStep >= 1 && compassStep <= 5) {
+    const msgs = getChatMessages(compassStep);
+    const isLast = compassStep === 5;
+    body.innerHTML = `
+      <div class="card">
+        <h3>🧭 AI 深度访谈</h3>
+        <div class="chat-list" id="chatList"></div>
+        ${!isLast ? `<div class="quick-replies" id="quickReplies"></div>` : ''}
+      </div>
+      ${isLast ? `
+      <div class="card" style="text-align:center">
+        <h3>🎉 分析完成！</h3>
+        <div class="radar-wrap"><div class="radar">${radarSVG([82,75,68,70,88,45,62])}</div></div>
+        <p style="margin:8px 0"><strong>你的七维能力雷达图</strong></p>
+        <div style="background:#fef3c7;border-radius:10px;padding:12px;margin:8px 0">
+          <p style="color:#92400e;font-size:0.8rem">💡 <strong>惊喜发现：</strong>你高度匹配 <b>"用户增长运营"</b>（匹配度91%）——一个你可能从未考虑过的方向！</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          ${['用户增长运营 91%','内容运营 87%','品牌营销 82%','产品运营 78%','活动策划 75%'].map(d => {
+            const [n,s] = d.split(' ');
+            return `<span class="segment diamond">🏷 ${n} ${s}</span>`;
+          }).join('')}
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:12px" id="resetCompass">重新探索</button>
+      </div>` : ''}
+    `;
+  }
+}
+
+function getChatMessages(step) {
+  const all = [
+    [{role:'ai',text:'嗨！我是你的AI职业导师 ✨<br><br>最近半年，有没有一件让你特别有成就感的事？可以是一个项目、一次活动、或者任何一个你觉得"做得不错"的时刻。'}],
+    [{role:'ai',text:'嗨！我是你的AI职业导师 ✨<br><br>最近半年，有没有一件让你特别有成就感的事？可以是一个项目、一次活动、或者任何一个你觉得"做得不错"的时刻。'},{role:'user',text:'嗯…我在学校组织过一个夜市活动'}],
+    [{role:'ai',text:'嗨！我是你的AI职业导师 ✨<br><br>最近半年，有没有一件让你特别有成就感的事？可以是一个项目、一次活动、或者任何一个你觉得"做得不错"的时刻。'},{role:'user',text:'嗯…我在学校组织过一个夜市活动'},{role:'ai',text:'太有意思了！🎪 跟我多说说——<br><br>你具体负责哪些事情？比如怎么把商家和学生都拉到一起的？'}],
+    [{role:'ai',text:'嗨！我是你的AI职业导师 ✨<br><br>最近半年，有没有一件让你特别有成就感的事？可以是一个项目、一次活动、或者任何一个你觉得"做得不错"的时刻。'},{role:'user',text:'嗯…我在学校组织过一个夜市活动'},{role:'ai',text:'太有意思了！🎪 跟我多说说——<br><br>你具体负责哪些事情？比如怎么把商家和学生都拉到一起的？'},{role:'user',text:'我联系了20多家商家，最后来了12家。还拉了社团的同学来表演，现场人挺多的'}],
+    [{role:'ai',text:'嗨！我是你的AI职业导师 ✨<br><br>最近半年，有没有一件让你特别有成就感的事？可以是一个项目、一次活动、或者任何一个你觉得"做得不错"的时刻。'},{role:'user',text:'嗯…我在学校组织过一个夜市活动'},{role:'ai',text:'太有意思了！🎪 跟我多说说——<br><br>你具体负责哪些事情？比如怎么把商家和学生都拉到一起的？'},{role:'user',text:'我联系了20多家商家，最后来了12家。还拉了社团的同学来表演，现场人挺多的'},{role:'ai',text:'这很厉害！让我总结一下你展现的能力：<br><br>🎯 <b>商务谈判</b>：60%转化率<br>🤝 <b>跨团队协作</b>：协调商家+社团<br>📋 <b>活动统筹</b>：从0到1落地<br><br>你在做这些的时候，有没有哪个环节让你觉得特别有干劲？'}],
+  ];
+  return all[step-1] || all[0];
+}
+
+function attachCompassHandlers() {
+  const startBtn = document.getElementById('startCompass');
+  if (startBtn) startBtn.addEventListener('click', () => { compassStep = 1; renderTab('compass'); });
+
+  const resetBtn = document.getElementById('resetCompass');
+  if (resetBtn) resetBtn.addEventListener('click', () => { compassStep = 0; renderTab('compass'); });
+
+  const repliesDiv = document.getElementById('quickReplies');
+  if (repliesDiv && compassStep < 5) {
+    const replies = [
+      ['组织过校园活动','在社团做过事','课程项目有成就感'],
+      ['拉了很多商家参与','现场来了好多人','同学们反响很好'],
+      ['联系商家和协调资源','看着活动从无到有','解决了突发问题'],
+      ['沟通谈判最有干劲','看着想法变成现实','团队一起努力的时候'],
+    ];
+    const r = replies[compassStep-1] || replies[0];
+    repliesDiv.innerHTML = r.map(t => `<button class="quick-reply">${t}</button>`).join('');
+    repliesDiv.querySelectorAll('.quick-reply').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const userMsg = btn.textContent;
+        const chatList = document.getElementById('chatList');
+        // Add user message
+        const userEl = document.createElement('div');
+        userEl.className = 'chat-msg user';
+        userEl.textContent = userMsg;
+        chatList.appendChild(userEl);
+        // Disable replies
+        repliesDiv.innerHTML = '';
+        // Show typing then AI response
+        const typingEl = document.createElement('div');
+        typingEl.className = 'chat-msg ai';
+        typingEl.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+        chatList.appendChild(typingEl);
+        chatList.scrollTop = chatList.scrollHeight;
+        setTimeout(() => {
+          typingEl.remove();
+          compassStep = Math.min(compassStep + 1, 5);
+          renderTab('compass');
+          const newChat = document.getElementById('chatList');
+          if (newChat) newChat.scrollTop = newChat.scrollHeight;
+        }, 1200 + Math.random() * 800);
+      });
+    });
+  }
+
+  // Render initial messages
+  const chatList = document.getElementById('chatList');
+  if (chatList && compassStep >= 1) {
+    const msgs = getChatMessages(compassStep);
+    chatList.innerHTML = msgs.map(m =>
+      `<div class="chat-msg ${m.role}">${m.text}</div>`
+    ).join('');
+    chatList.scrollTop = chatList.scrollHeight;
+  }
+}
+
+// ═══════════ ⚡ AI简历引擎 ═══════════
+function renderResume(body) {
+  if (resumeStep === 0) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div class="empty-anim"><div class="icon">⚡</div></div>
+        <h3>AI 简历引擎</h3>
+        <p>语音口述经历，AI自动挖掘细节<br>生成专业STAR简历</p>
+        <button class="btn btn-primary" style="margin-top:14px" id="startResume">开始制作简历</button>
+      </div>
+    `;
+  } else if (resumeStep === 1) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <h3>🎤 语音录入经历</h3>
+        <p style="margin:8px 0">简单描述你做过的事，<br>AI会追问关键细节</p>
+        <div class="voice-btn" id="voiceBtn">🎤</div>
+        <p style="font-size:0.75rem;color:var(--text3)" id="voiceHint">点击开始录音</p>
+        <div class="visualizer" id="visualizer" style="display:none"></div>
+      </div>
+      <div class="card" style="text-align:center;color:var(--text3)">
+        <p>💡 试试说：<em>"我大二在学生会拉过赞助"</em></p>
+      </div>
+    `;
+  } else if (resumeStep === 2) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <h3>🔍 AI 正在追问细节...</h3>
+        <div class="chat-list" style="max-height:200px">
+          <div class="chat-msg user">我大二在学生会外联部拉过赞助</div>
+          <div class="chat-msg ai">明白了！来具体聊聊——<br><br>这是为哪个活动拉的赞助？对接了多少家企业？</div>
+          <div class="chat-msg user">迎新晚会。联系了大概十几家，最后成了3家</div>
+          <div class="chat-msg ai">👍 收到！总共筹集了多少资金或物资？</div>
+          <div class="chat-msg user">现金一万五左右，还有一些实物赞助</div>
+          <div class="chat-msg ai">最后一个问题——现场有多少人参加活动？</div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px" id="genResume">✨ 生成简历条目</button>
+      </div>
+    `;
+  } else if (resumeStep >= 3) {
+    body.innerHTML = `
+      <div class="card">
+        <h3>📝 生成的简历条目</h3>
+        <div class="resume-preview">
+          <p style="font-weight:700;font-size:0.85rem;margin-bottom:6px">校园经历</p>
+          <p><strong>主导校园赞助谈判</strong></p>
+          <p>面向迎新晚会独立开拓企业资源，成功签约<span class="highlight">可口可乐等3家品牌合作方</span>，累计筹集活动资金<span class="highlight">¥15,000+</span>实物赞助价值¥3,000，覆盖受众<span class="highlight">2,000+人</span>，赞助转化率27%。</p>
+          <div style="margin-top:8px"><span class="badge good">STAR结构完整</span> <span class="badge good">量化数据充分</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📊 ATS 评分预估</h3>
+        <div class="bar-wrap"><div class="bar-label"><span>关键词覆盖</span><span class="val">95%</span></div><div class="bar-track"><div class="bar-fill green" style="width:95%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>结构规范</span><span class="val">90%</span></div><div class="bar-track"><div class="bar-fill blue" style="width:90%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>经历量化度</span><span class="val">88%</span></div><div class="bar-track"><div class="bar-fill purple" style="width:88%"></div></div></div>
+        <p style="text-align:center;font-weight:700;font-size:1.1rem;margin-top:10px;color:#10b981">ATS总分：92分 ✅ 优秀</p>
+      </div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:8px" id="resetResume">重新录入</button>
+    `;
+  }
+}
+
+function attachResumeHandlers() {
+  const startBtn = document.getElementById('startResume');
+  if (startBtn) startBtn.addEventListener('click', () => { resumeStep = 1; renderTab('resume'); });
+
+  const resetBtn = document.getElementById('resetResume');
+  if (resetBtn) resetBtn.addEventListener('click', () => { resumeStep = 0; renderTab('resume'); });
+
+  const voiceBtn = document.getElementById('voiceBtn');
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', () => {
+      if (voiceBtn.classList.contains('recording')) return;
+      voiceBtn.classList.add('recording');
+      voiceBtn.textContent = '⏹';
+      document.getElementById('voiceHint').textContent = '正在聆听...';
+      document.getElementById('visualizer').style.display = 'flex';
+      document.getElementById('visualizer').innerHTML = Array(7).fill(0).map(() => `<div class="bar"></div>`).join('');
+      setTimeout(() => {
+        voiceBtn.classList.remove('recording');
+        voiceBtn.textContent = '🎤';
+        document.getElementById('voiceHint').textContent = '录音完成';
+        document.getElementById('visualizer').style.display = 'none';
+        resumeStep = 2;
+        setTimeout(() => renderTab('resume'), 600);
+      }, 2500);
+    });
+  }
+
+  const genBtn = document.getElementById('genResume');
+  if (genBtn) {
+    genBtn.addEventListener('click', () => {
+      resumeStep = 3;
+      renderTab('resume');
+    });
+  }
+}
+
+// ═══════════ 🎭 AI面试训练场 ═══════════
+function renderInterview(body) {
+  if (interviewStep === 0) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div class="empty-anim"><div class="icon">🎭</div></div>
+        <h3>AI 面试训练场</h3>
+        <p>选择面试模式，开始实时语音对话训练</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px">
+          ${['🖥 技术面','👔 HR面','👥 群面','🔥 压力面','🇬🇧 英语面'].map(m =>
+            `<button class="btn btn-outline btn-sm">${m}</button>`
+          ).join('')}
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px;width:100%" id="startInterview">开始训练</button>
+      </div>
+    `;
+  } else if (interviewStep === 1) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div class="interview-avatar">🤖</div>
+        <h3>AI面试官 · 技术面</h3>
+        <p style="font-size:0.8rem;color:var(--text2)">岗位：用户增长运营</p>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;margin:12px 0;text-align:left">
+          <p style="font-size:0.85rem"><strong>🤖 AI面试官：</strong></p>
+          <p style="font-size:0.82rem;margin-top:6px">假设你负责一款DAU 10万的工具App，现在次日留存率下降了15%，你会从哪几个维度排查原因？请简述你的分析框架。</p>
+        </div>
+        <div class="voice-btn" id="answerBtn">🎤</div>
+        <p style="font-size:0.75rem;color:var(--text3)">点击回答</p>
+      </div>
+    `;
+  } else if (interviewStep === 2) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div class="interview-avatar">🤖</div>
+        <h3>AI面试官 · 追问中</h3>
+        <div class="chat-list" style="max-height:150px">
+          <div class="chat-msg ai">假设你负责一款DAU 10万的工具App，次日留存下降了15%，你怎么排查？</div>
+          <div class="chat-msg user">我会从三个维度入手：第一看用户分群，对比留存下降的用户群体特征；第二看产品行为数据，定位到具体功能或页面；第三看外部因素如竞品动作或行业变化。</div>
+          <div class="chat-msg ai">很好，思路清晰。那你具体说说——如何界定"流失用户"和"留存用户"的差异特征？用什么数据指标来区分？</div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%" id="showScore">查看评分</button>
+      </div>
+    `;
+  } else if (interviewStep >= 3) {
+    body.innerHTML = `
+      <div class="card" style="text-align:center">
+        <h3>📊 实时表现评估</h3>
+        <div style="display:flex;justify-content:center;gap:16px;margin:12px 0">
+          <div class="score-ring high"><span style="color:#10b981">82</span></div>
+          <div class="score-ring mid"><span style="color:#f59e0b">65</span></div>
+          <div class="score-ring high"><span style="color:#10b981">78</span></div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:16px;font-size:0.72rem;color:var(--text2)">
+          <span>内容质量</span><span>表达结构</span><span>呈现方式</span>
+        </div>
+        <div style="text-align:left;margin-top:14px;background:#f8fafc;border-radius:10px;padding:12px">
+          <p style="font-size:0.8rem"><strong>💡 改进建议：</strong></p>
+          <p style="font-size:0.78rem;color:var(--text2);margin-top:4px">• 表达结构可加强：建议用"结论先行→分点阐述→总结"的框架<br>• 追问环节可以更深入：当被追问时，用具体数据举例说明<br>• 语速略快：适当停顿，让面试官有时间消化</p>
+        </div>
+        <div style="margin-top:12px">
+          <p style="font-size:0.78rem;color:var(--text2)">📈 面试能力成长</p>
+          <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:6px">
+            <span style="font-size:0.75rem;color:var(--text3)">青铜</span>
+            <div class="bar-track" style="flex:1"><div class="bar-fill blue" style="width:68%"></div></div>
+            <span style="font-size:0.75rem;color:var(--text3)">黄金</span>
+          </div>
+          <span class="segment diamond" style="margin-top:6px">⭐ 黄金段位</span>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:12px;width:100%" id="resetInterview">再练一次</button>
+      </div>
+    `;
+  }
+}
+
+function attachInterviewHandlers() {
+  const startBtn = document.getElementById('startInterview');
+  if (startBtn) startBtn.addEventListener('click', () => { interviewStep = 1; renderTab('interview'); });
+
+  const answerBtn = document.getElementById('answerBtn');
+  if (answerBtn) {
+    answerBtn.addEventListener('click', () => {
+      if (answerBtn.classList.contains('recording')) return;
+      answerBtn.classList.add('recording');
+      answerBtn.textContent = '⏹';
+      setTimeout(() => {
+        answerBtn.classList.remove('recording');
+        interviewStep = 2;
+        renderTab('interview');
+      }, 2000);
+    });
+  }
+
+  const showScore = document.getElementById('showScore');
+  if (showScore) showScore.addEventListener('click', () => { interviewStep = 3; renderTab('interview'); });
+
+  const resetBtn = document.getElementById('resetInterview');
+  if (resetBtn) resetBtn.addEventListener('click', () => { interviewStep = 0; renderTab('interview'); });
+}
+
+// ═══════════ 🗺️ 求职作战地图 ═══════════
+function renderMap(body) {
+  body.innerHTML = `
+    <div class="card">
+      <h3>📊 求职仪表盘</h3>
+      <div class="stats">
+        <div class="stat"><div class="num">23</div><div class="lbl">总投递</div></div>
+        <div class="stat"><div class="num">7</div><div class="lbl">面试邀请</div></div>
+        <div class="stat"><div class="num">30%</div><div class="lbl">简历通过率</div></div>
+        <div class="stat"><div class="num">2</div><div class="lbl">Offer</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🎯 三层投递策略</h3>
+      <div style="display:flex;gap:8px;text-align:center;margin-bottom:10px">
+        <div style="flex:1;background:#fef2f2;border-radius:10px;padding:10px">
+          <p style="font-size:0.7rem;color:#dc2626">🚀 冲刺 (20%)</p>
+          <p style="font-weight:700;font-size:0.85rem">5家</p>
+          <p style="font-size:0.65rem;color:var(--text2)">匹配70-80%</p>
+        </div>
+        <div style="flex:1;background:#eef2ff;border-radius:10px;padding:10px">
+          <p style="font-size:0.7rem;color:var(--primary)">🎯 匹配 (50%)</p>
+          <p style="font-weight:700;font-size:0.85rem">11家</p>
+          <p style="font-size:0.65rem;color:var(--text2)">匹配80-90%</p>
+        </div>
+        <div style="flex:1;background:#f0fdf4;border-radius:10px;padding:10px">
+          <p style="font-size:0.7rem;color:#10b981">🛡️ 保底 (30%)</p>
+          <p style="font-weight:700;font-size:0.85rem">7家</p>
+          <p style="font-size:0.65rem;color:var(--text2)">匹配90%+</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📋 今日任务</h3>
+      ${[
+        {dot:'🔴',txt:'字节跳动「用户增长运营」明天一面 → 建议练习3道高频题',urgent:true},
+        {dot:'🟡',txt:'腾讯投递7天无反馈 → 建议发送跟进邮件',urgent:false},
+        {dot:'🟢',txt:'本周面试回顾已生成 → 查看薄弱环节分析',urgent:false},
+      ].map(t => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px">
+          <span style="font-size:1.2rem;flex-shrink:0">${t.dot}</span>
+          <span style="font-size:0.8rem;${t.urgent?'font-weight:600':''}">${t.txt}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="card">
+      <h3>📈 求职进度流</h3>
+      ${[
+        {co:'字节跳动',pos:'用户增长运营',st:'二面通过 ⏳ 等终面',color:'#4f46e5'},
+        {co:'美团',pos:'内容运营',st:'一面通过 ✅ 安排二面',color:'#10b981'},
+        {co:'阿里巴巴',pos:'产品运营',st:'简历已阅 ⏳ 等通知',color:'#f59e0b'},
+        {co:'小红书',pos:'品牌营销',st:'已投递 3天前',color:'#94a3b8'},
+      ].map(t => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+          <div style="flex:1"><span style="font-weight:600;font-size:0.82rem">${t.co}</span><span style="font-size:0.72rem;color:var(--text2)"> · ${t.pos}</span></div>
+          <span style="font-size:0.72rem;color:var(--text3)">${t.st}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════ 🧠 Offer决策室 ═══════════
+function renderOffer(body) {
+  body.innerHTML = `
+    <div class="card">
+      <h3>⚖️ Offer对比</h3>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div class="offer-card best">
+          <div class="company">字节跳动</div>
+          <div class="salary">¥18K×15</div>
+          <div class="tag">用户增长运营</div>
+          <span class="segment diamond" style="margin-top:4px">🏆 推荐</span>
+        </div>
+        <div class="offer-card">
+          <div class="company">美团</div>
+          <div class="salary">¥16K×16</div>
+          <div class="tag">内容运营</div>
+        </div>
+        <div class="offer-card">
+          <div class="company">小红书</div>
+          <div class="salary">¥15K×14</div>
+          <div class="tag">品牌营销</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📊 12维深度对比（字节 vs 美团）</h3>
+      <table class="compare-table">
+        <tr><th>维度</th><th>字节跳动</th><th>美团</th></tr>
+        <tr><td>等效年薪</td><td class="win">¥270K</td><td>¥256K</td></tr>
+        <tr><td>公积金基数</td><td class="win">全额</td><td>80%</td></tr>
+        <tr><td>加班强度</td><td>中等</td><td class="win">较低</td></tr>
+        <tr><td>行业前景</td><td class="win">⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td>成长空间</td><td class="win">快速晋升</td><td>稳定晋升</td></tr>
+        <tr><td>跳槽价值</td><td class="win">极高</td><td>高</td></tr>
+        <tr><td>城市生活成本</td><td>北京 ¥5K</td><td class="win">北京 ¥5K</td></tr>
+      </table>
+    </div>
+
+    <div class="card" style="text-align:center">
+      <h3>💬 AI薪资谈判模拟</h3>
+      <div class="chat-list" style="max-height:160px">
+        <div class="chat-msg ai">感谢你对字节的认可！我们给出的薪资是18K×15，这在同届中已经很有竞争力了。</div>
+        <div class="chat-msg user">感谢认可！我了解到同岗位的P50是20K，结合我在实习期间的用户增长实战经验，我希望base能到20K。</div>
+        <div class="chat-msg ai">你的实习经验确实很匹配。但应届生的薪资有统一标准...我可以帮你申请到19K，这是我能争取的最大空间了。</div>
+      </div>
+      <p style="font-size:0.75rem;color:#10b981;margin-top:8px">✅ 谈判结果：+¥1,000/月 → 等效年薪增加¥15,000</p>
+    </div>
+
+    <div class="card">
+      <h3>🧮 薪资计算器</h3>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="flex:1">
+          <div class="bar-wrap"><div class="bar-label"><span>字节 ¥270K</span><span class="val">P65</span></div><div class="bar-track"><div class="bar-fill blue" style="width:65%"></div></div></div>
+          <div class="bar-wrap"><div class="bar-label"><span>美团 ¥256K</span><span class="val">P55</span></div><div class="bar-track"><div class="bar-fill green" style="width:55%"></div></div></div>
+          <div class="bar-wrap"><div class="bar-label"><span>行业中位</span><span class="val">¥230K</span></div><div class="bar-track"><div class="bar-fill purple" style="width:50%"></div></div></div>
+        </div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--text2);margin-top:8px">数据范围：北京/互联网/运营岗/应届生</p>
+    </div>
+  `;
+}
+
+// ═══════════ Handler Router ═══════════
+function attachHandlers(tab) {
+  switch(tab) {
+    case 'compass': attachCompassHandlers(); break;
+    case 'resume': attachResumeHandlers(); break;
+    case 'interview': attachInterviewHandlers(); break;
+    case 'map': break;
+    case 'offer': break;
+  }
+}
+
+// ═══════════ Init ═══════════
+renderTab('compass');
+attachHandlers('compass');
+</script>
+</body>
+</html>
