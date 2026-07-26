@@ -87,39 +87,11 @@
         </div>
         <div class="input-group">
           <label>📝 你的简历</label>
-          <textarea id="ri" rows="6" placeholder="粘贴或输入简历内容...">教育背景
-岭南师范学院 · 物联网工程 · 本科 · 2027届
-核心课程：数据结构、数据库原理、嵌入式系统、传感器原理
-
-项目经历
-AI求职匹配分析平台（智联招聘AI创新大赛）
-- 使用Claude Code搭建推荐系统原型，设计岗位-简历语义匹配算法
-- 收集用户行为数据进行清洗分析，优化推荐算法
-- 负责产品Demo演示与项目路演
-
-实习经历
-易事达光电广东股份有限公司 · 财务数据助理
-- 运用Excel高级函数处理数百条交易记录，提升数据处理效率40%
-- 独立编制盘点差异分析报告
-
-技能
-Python, SQL, Excel, Axure, Figma, 数据分析, 产品设计</textarea>
+          <textarea id="ri" rows="6" placeholder="粘贴或输入简历内容..."></textarea>
         </div>
         <div class="input-group">
           <label>🎯 目标岗位JD</label>
-          <textarea id="ji" rows="5" placeholder="粘贴职位描述…">AI产品经理（校招）
-
-岗位职责：
-1. 负责AI产品的需求分析、产品规划和功能设计
-2. 撰写产品需求文档（PRD），协调研发团队推进产品落地
-3. 跟踪行业动态和竞品，进行市场调研与分析
-4. 通过数据分析驱动产品迭代优化
-
-任职要求：
-- 本科及以上学历，计算机/AI/产品设计相关专业
-- 对AI技术有深入了解，熟悉大模型产品应用
-- 具备优秀的逻辑分析能力和产品思维
-- 有数据分析能力，熟练使用SQL/Python优先</textarea>
+          <textarea id="ji" rows="5" placeholder="粘贴职位描述…"></textarea>
         </div>
         <button class="btn btn-primary btn-block" style="margin:8px 0" id="di">✨ AI 帮我优化简历</button>
       </div>
