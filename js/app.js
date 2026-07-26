@@ -28,15 +28,15 @@
 
   // ===== Tab System =====
   let currentTab = 'resume';
-  let matchState = 0; // 0=welcome, 1=results, 2=detail
+  let matchState = 0;
   let matchPage = 1;
   let matchQuery = '';
   let matchFilter = '';
   const PAGE_SIZE = 20;
-  let resumeCache = null; // Cached parsed resume for match
-  let optimizedCache = null; // Cache for optimized result text and parsed fields
+  let resumeCache = null;
+  let optimizedCache = null;
 
-  const tabs = document.querySelectorAll('.tab');
+  const tabs = document.querySelectorAll('.top-tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const tabName = tab.dataset.tab;
@@ -50,10 +50,10 @@
     });
   });
 
-  // Keyboard navigation for tabs
-  document.querySelector('.tabs').addEventListener('keydown', (e) => {
+  // Keyboard navigation
+  document.querySelector('.top-nav').addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    const active = document.querySelector('.tab.active');
+    const active = document.querySelector('.top-tab.active');
     const idx = [...tabs].indexOf(active);
     const next = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
     tabs[next].focus();
@@ -113,7 +113,7 @@
       if (optimizedCache) {
         applyOptimizedToCache(optimizedCache);
       }
-      document.querySelector('.tab[data-tab="match"]').click();
+      document.querySelector('.top-tab[data-tab="match"]').click();
     });
   }
 
